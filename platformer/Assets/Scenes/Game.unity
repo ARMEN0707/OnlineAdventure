@@ -55950,6 +55950,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Finish
       objectReference: {fileID: 0}
+    - target: {fileID: 2478939755592939283, guid: a57a265c024123440a3c67df949e604f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a57a265c024123440a3c67df949e604f, type: 3}
 --- !u!1001 &2779630592729968183
@@ -56498,6 +56502,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6662042122867010640, guid: 811fbd02bfc197a4e89724a94396435f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6662042122867010641, guid: 811fbd02bfc197a4e89724a94396435f, type: 3}
       propertyPath: m_Name
       value: BlueBird

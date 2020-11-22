@@ -20,14 +20,26 @@ public class StartEditor : MonoBehaviour
         character.SetActive(false);
     }
 
-    private void EnabledScript()
+    private void ActivateBird()
     {
-        try {
-
+        Bird[] birdScripts = FindObjectsOfType<Bird>();
+        foreach (Bird item in birdScripts)
+        {
+            item.enabled = !item.enabled;
+            item.transform.position = item.startPoint;
         }
-        catch(NullReferenceException){}
-
     }
+
+    private void ActivateChicken()
+    {
+        Chicken[] chickenScripts = FindObjectsOfType<Chicken>();
+        foreach (Chicken item in chickenScripts)
+        {
+            item.enabled = !item.enabled;
+            item.transform.position = item.startPoint;
+        }
+    }
+
 
     public void PressButton()
     {
@@ -36,10 +48,14 @@ public class StartEditor : MonoBehaviour
             scrollView.SetActive(false);
             textButton.text = "Stop";
             start = true;
-            character.transform.position = GameObject.Find("PlayerSpawn").GetComponent<Transform>().position;
-            character.SetActive(true);
-            moveCameraScript.enabled = false;
-            playerCameraScript.enabled = true;
+            if(GameObject.Find("PlayerSpawn")!=null)
+            {
+                character.transform.position = GameObject.Find("PlayerSpawn").GetComponent<Transform>().position;
+                character.SetActive(true);
+                moveCameraScript.enabled = false;
+                playerCameraScript.enabled = true;
+            }
+
         }
         else
         {
@@ -50,5 +66,7 @@ public class StartEditor : MonoBehaviour
             moveCameraScript.enabled = true;
             playerCameraScript.enabled = false;
         }
+        ActivateBird();
+        ActivateChicken();
     }
 }

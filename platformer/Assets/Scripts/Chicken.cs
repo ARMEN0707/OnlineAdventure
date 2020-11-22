@@ -12,12 +12,14 @@ public class Chicken : MonoBehaviour
     public Transform distance;
     public float speed;
 
+    public Vector3 startPoint;
+
     // Start is called before the first frame update
     void Start()
     {
         playerMask = LayerMask.GetMask("Player");
         chickenAnim = GetComponentInChildren<Animator>();
-        Physics2D.queriesStartInColliders = false;
+        startPoint = new Vector3(transform.position.x,transform.position.y,transform.position.z);
     }
     
     void FixedUpdate()

@@ -20,7 +20,7 @@ public class Server : MonoBehaviour
 
     public  Character characterServer;
     public CharacterClient characterClient;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +28,7 @@ public class Server : MonoBehaviour
         characterClient = characterClient = DataScenes.characterClient.GetComponent<CharacterClient>();
         try
         {
-            ipHost = Dns.GetHostEntry(Dns.GetHostName());
+            ipHost = Dns.GetHostEntry("");  //Dns.GetHostName()          
             ipAddr = ipHost.AddressList[1];
             Debug.Log(ipAddr);
             ipEndPoint = new IPEndPoint(ipAddr, 11000);

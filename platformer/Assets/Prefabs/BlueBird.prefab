@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5408308912525187132}
   - component: {fileID: 7189225869134108377}
   - component: {fileID: 1284900226}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: BlueBird
-  m_TagString: Enemies
+  m_TagString: BlueBird
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -50,6 +50,7 @@ MonoBehaviour:
   right: 1
   distance: 0.5
   speed: 0.5
+  startPoint: {x: 0, y: 0, z: 0}
 --- !u!114 &5408308912525187132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +121,7 @@ GameObject:
   - component: {fileID: 6662042123023496589}
   - component: {fileID: 6662042123023496586}
   - component: {fileID: 6662042123023496587}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: SpriteBlueBird
   m_TagString: Untagged
   m_Icon: {fileID: 0}

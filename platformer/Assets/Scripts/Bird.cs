@@ -9,7 +9,8 @@ public class Bird : MonoBehaviour
     public float distance, speed;
     private SpriteRenderer enemiesSprite;
     private Animator enemiesAnimator;
-    private Vector3 tempPointRight, tempPointLeft;
+    public Vector3 tempPointRight, tempPointLeft;
+    public Vector3 startPoint;
 
     // Start is called before the first frame update
     void Start()
@@ -18,11 +19,13 @@ public class Bird : MonoBehaviour
         enemiesSprite = GetComponentInChildren<SpriteRenderer>();
         tempPointRight = new Vector3(transform.position.x + distance, transform.position.y, transform.position.z);
         tempPointLeft = new Vector3(transform.position.x - distance, transform.position.y, transform.position.z);
+        startPoint = new Vector3(transform.position.x,transform.position.y,transform.position.z);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        //движение объекта
         if (right)
         {
             transform.position = Vector3.MoveTowards(transform.position, tempPointRight, Time.fixedDeltaTime * speed);
@@ -43,6 +46,7 @@ public class Bird : MonoBehaviour
         }           
     }
 
+    //При сталкновение с игроком делать разварот в другую сторону
     void OnCollisionEnter2D(Collision2D collision)
     {
         right = !right;

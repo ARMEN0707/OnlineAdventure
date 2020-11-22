@@ -11,17 +11,20 @@ public class SelectMouseItem : MonoBehaviour
     private Vector2 mouse;
     private int indexTerrain;
     private GameObject selectTerrain;
-    private GameObject createTerrain;
+    private GameObject createObject;
 
     private int groundLayer;
     private int terrainLayer;
+    private int enemiesLayer;
     private bool selectItem;
+    
     // Start is called before the first frame update
     void Start()
     {
         mainCamera = Camera.main;
         groundLayer = LayerMask.NameToLayer("Ground");
         terrainLayer = LayerMask.NameToLayer("UI");
+        enemiesLayer = LayerMask.NameToLayer("Enemies");
     }
 
     void DrawSelectItem (GameObject item)
@@ -55,48 +58,68 @@ public class SelectMouseItem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(rayMouse.collider);
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("dsf");
-        }
         mouse = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
         mouse = mainCamera.ScreenToWorldPoint(mouse);
         if ((rayMouse.collider!=null) && (rayMouse.collider.gameObject.layer == terrainLayer) && Input.GetMouseButtonDown(0))
         {
-            if(createTerrain != null && createTerrain.GetComponent<LineRenderer>()!=null)
+            if(createObject != null && createObject.GetComponent<LineRenderer>()!=null)
             {
-                Destroy(createTerrain.GetComponent<LineRenderer>());
+                Destroy(createObject.GetComponent<LineRenderer>());
             }
             indexTerrain = Convert.ToInt32(rayMouse.collider.name);
             selectTerrain = arrayTerrain[indexTerrain];
-            createTerrain =  Instantiate(selectTerrain, new Vector3(mouse.x,mouse.y,selectTerrain.transform.position.z), Quaternion.identity);
-            createTerrain.name = createTerrain.name.Replace("(Clone)", "");
+            createObject =  Instantiate(selectTerrain, new Vector3(mouse.x,mouse.y,selectTerrain.transform.position.z), Quaternion.identity);
+            createObject.name = createObject.name.Replace("(Clone)", "");
             selectItem = true;
-            DrawSelectItem(createTerrain);
+            DrawSelectItem(createObject);
         }
-        else if ((rayMouse.collider != null) && (rayMouse.collider.gameObject.layer == groundLayer) && Input.GetMouseButtonDown(0))
+        else if ((rayMouse.collider != null) && Input.GetMouseButtonDown(0) && 
+        ((rayMouse.collider.gameObject.layer == groundLayer) || (rayMouse.collider.gameObject.layer == enemiesLayer)))        
         {
-            if (createTerrain != null && createTerrain.GetComponent<LineRenderer>() != null)
+            if (createObject != null && createObject.GetComponent<LineRenderer>() != null)
             {
-                Destroy(createTerrain.GetComponent<LineRenderer>());
+                Destroy(createObject.GetComponent<LineRenderer>());
             }
-            createTerrain = rayMouse.collider.gameObject;
-            DrawSelectItem(createTerrain);
+            createObject = rayMouse.collider.gameObject;
+            DrawSelectItem(createObject);
             selectItem = true;
         }
         if (Input.GetMouseButton(0) && selectItem)
         {
-            createTerrain.transform.position = Vector3.MoveTowards(createTerrain.transform.position, new Vector3(mouse.x, mouse.y, selectTerrain.transform.position.z), 0.5f);
-            DrawSelectItem(createTerrain);
+            createObject.transform.position = Vector3.MoveTowards(createObject.transform.position, new Vector3(mouse.x, mouse.y, selectTerrain.transform.position.z), 0.5f);
+            DrawSelectItem(createObject);
         }
         if(selectItem && Input.GetMouseButtonUp(0))
         {
+            if(createObject.tag == "BlueBird")
+            {
+                Bird birdScript = createObject.GetComponent<Bird>();
+                birdScript.startPoint = new Vector3 (
+                    birdScript.transform.position.x,
+                    birdScript.transform.position.y,
+                    birdScript.transform.position.z);
+                birdScript.tempPointRight = new Vector3(
+                    birdScript.transform.position.x + birdScript.distance, 
+                    birdScript.transform.position.y, 
+                    birdScript.transform.position.z);
+                birdScript.tempPointLeft = new Vector3(
+                    birdScript.transform.position.x - birdScript.distance, 
+                    birdScript.transform.position.y, 
+                    birdScript.transform.position.z);
+            }
+            if(createObject.tag == "Chicken")
+            {
+                Chicken chickenScript = createObject.GetComponent<Chicken>();
+                chickenScript.startPoint = new Vector3(
+                    chickenScript.transform.position.x,
+                    chickenScript.transform.position.y,
+                    chickenScript.transform.position.z);
+            }
             selectItem = false;
         }
-        if(Input.GetMouseButtonDown(0) && createTerrain != null && createTerrain.GetComponent<LineRenderer>() != null)
+        if(Input.GetMouseButtonDown(0) && createObject != null && createObject.GetComponent<LineRenderer>() != null)
         {
-            Destroy(createTerrain.GetComponent<LineRenderer>());
+            Destroy(createObject.GetComponent<LineRenderer>());
         }
 
     }
