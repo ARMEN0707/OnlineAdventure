@@ -10,7 +10,7 @@ TagManager:
   - PlayerClient
   - Terrain
   - BlueBird
-  - Chiken
+  - Chicken
   layers:
   - Default
   - TransparentFX

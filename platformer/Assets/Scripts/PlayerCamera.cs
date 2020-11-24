@@ -26,6 +26,7 @@ public class PlayerCamera : MonoBehaviour
         distanceY = Vector3.Distance(Camera.main.ViewportToWorldPoint(new Vector2(0.5f, 0)), transform.position);
     }
 
+    //проверка на конец карты
     bool checkRight()
     {
         if(playerTransform.position.x> transform.position.x + 0.5f)

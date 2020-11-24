@@ -5,8 +5,8 @@ using UnityEngine;
 public class KillEnemies : MonoBehaviour
 {
     private Animator anim;
-    private Rigidbody2D rbEnemies;
-    private BoxCollider2D colliderEnemies;
+    public Rigidbody2D rbEnemies;
+    public BoxCollider2D colliderEnemies;
 
     void Start()
     {
@@ -17,6 +17,7 @@ public class KillEnemies : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D col)
     {
+        //убийстово врага
         if ((col.gameObject.tag == "Player" || col.gameObject.tag == "PlayerClient") && (col.contacts[0].normal.y<0))
         {
             col.rigidbody.velocity = new Vector2(0, 2f);
@@ -25,6 +26,7 @@ public class KillEnemies : MonoBehaviour
             rbEnemies.velocity = new Vector2(1f, 2f);
             anim.SetTrigger("isLife");
         }
+        // убийство игрока
         else if (col.gameObject.tag == "Player")
         {
             Character.life--;
@@ -38,7 +40,9 @@ public class KillEnemies : MonoBehaviour
                 characterScript.charAnimator.SetTrigger("Hit");
             }
             col.rigidbody.velocity = new Vector2(1.5f, 2f);
-        }else if(col.gameObject.tag == "PlayerClient")
+        }
+        //удийство клиента
+        else if(col.gameObject.tag == "PlayerClient")
         {
             CharacterClient.life--;
             if (CharacterClient.life == 0)

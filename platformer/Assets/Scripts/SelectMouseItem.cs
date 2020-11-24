@@ -5,7 +5,7 @@ using System;
 
 public class SelectMouseItem : MonoBehaviour
 {
-    public List<GameObject> arrayTerrain;
+    public List<GameObject> listPrefabs;
     private Camera mainCamera;
     private RaycastHit2D rayMouse;
     private Vector2 mouse;
@@ -27,6 +27,36 @@ public class SelectMouseItem : MonoBehaviour
         enemiesLayer = LayerMask.NameToLayer("Enemies");
     }
 
+    public static void InitObjectBird(GameObject createObject)
+    {
+        Bird birdScript = createObject.GetComponent<Bird>();
+        birdScript.startPoint = new Vector3(
+            birdScript.transform.position.x,
+            birdScript.transform.position.y,
+            birdScript.transform.position.z
+        );
+        birdScript.tempPointRight = new Vector3(
+            birdScript.transform.position.x + birdScript.distance,
+            birdScript.transform.position.y,
+            birdScript.transform.position.z
+        );
+        birdScript.tempPointLeft = new Vector3(
+            birdScript.transform.position.x - birdScript.distance,
+            birdScript.transform.position.y,
+            birdScript.transform.position.z
+        );
+    }
+    public static void InitObjectChicken(GameObject createObject)
+    {
+        Chicken chickenScript = createObject.GetComponentInChildren<Chicken>();
+        chickenScript.startPoint = new Vector3(
+            chickenScript.transform.position.x,
+            chickenScript.transform.position.y,
+            chickenScript.transform.position.z
+        );
+    }
+
+    //рисует обводку, когда объект выбран
     void DrawSelectItem (GameObject item)
     {
         LineRenderer lineRenderer = item.GetComponent<LineRenderer>();
@@ -39,7 +69,7 @@ public class SelectMouseItem : MonoBehaviour
         Vector2 center = tempBounds.center;
         float x = center.x;
         float y = center.y;
-        Material redToGreen = new Material(Shader.Find("Mobile/Particles/Additive")); //Probably something                                                        wrong here.
+        Material redToGreen = new Material(Shader.Find("Mobile/Particles/Additive"));
         lineRenderer.material = redToGreen;
         lineRenderer.startColor = Color.green;
         lineRenderer.endColor = Color.green;
@@ -60,6 +90,7 @@ public class SelectMouseItem : MonoBehaviour
     {
         mouse = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
         mouse = mainCamera.ScreenToWorldPoint(mouse);
+        //создание объекта
         if ((rayMouse.collider!=null) && (rayMouse.collider.gameObject.layer == terrainLayer) && Input.GetMouseButtonDown(0))
         {
             if(createObject != null && createObject.GetComponent<LineRenderer>()!=null)
@@ -67,12 +98,13 @@ public class SelectMouseItem : MonoBehaviour
                 Destroy(createObject.GetComponent<LineRenderer>());
             }
             indexTerrain = Convert.ToInt32(rayMouse.collider.name);
-            selectTerrain = arrayTerrain[indexTerrain];
+            selectTerrain = listPrefabs[indexTerrain];
             createObject =  Instantiate(selectTerrain, new Vector3(mouse.x,mouse.y,selectTerrain.transform.position.z), Quaternion.identity);
             createObject.name = createObject.name.Replace("(Clone)", "");
             selectItem = true;
             DrawSelectItem(createObject);
         }
+        //выбор созданого объекта
         else if ((rayMouse.collider != null) && Input.GetMouseButtonDown(0) && 
         ((rayMouse.collider.gameObject.layer == groundLayer) || (rayMouse.collider.gameObject.layer == enemiesLayer)))        
         {
@@ -84,47 +116,46 @@ public class SelectMouseItem : MonoBehaviour
             DrawSelectItem(createObject);
             selectItem = true;
         }
+        //перемещение объекта
         if (Input.GetMouseButton(0) && selectItem)
         {
             createObject.transform.position = Vector3.MoveTowards(createObject.transform.position, new Vector3(mouse.x, mouse.y, selectTerrain.transform.position.z), 0.5f);
             DrawSelectItem(createObject);
         }
+
+        //когда перестали перемещать
         if(selectItem && Input.GetMouseButtonUp(0))
         {
             if(createObject.tag == "BlueBird")
             {
-                Bird birdScript = createObject.GetComponent<Bird>();
-                birdScript.startPoint = new Vector3 (
-                    birdScript.transform.position.x,
-                    birdScript.transform.position.y,
-                    birdScript.transform.position.z);
-                birdScript.tempPointRight = new Vector3(
-                    birdScript.transform.position.x + birdScript.distance, 
-                    birdScript.transform.position.y, 
-                    birdScript.transform.position.z);
-                birdScript.tempPointLeft = new Vector3(
-                    birdScript.transform.position.x - birdScript.distance, 
-                    birdScript.transform.position.y, 
-                    birdScript.transform.position.z);
+                InitObjectBird(createObject);
             }
             if(createObject.tag == "Chicken")
             {
-                Chicken chickenScript = createObject.GetComponent<Chicken>();
-                chickenScript.startPoint = new Vector3(
-                    chickenScript.transform.position.x,
-                    chickenScript.transform.position.y,
-                    chickenScript.transform.position.z);
+                InitObjectChicken(createObject);
             }
             selectItem = false;
         }
+        //Уничтожение обводки
         if(Input.GetMouseButtonDown(0) && createObject != null && createObject.GetComponent<LineRenderer>() != null)
         {
             Destroy(createObject.GetComponent<LineRenderer>());
+        }
+        //быбранного объекта нет
+        if(rayMouse.collider == null && Input.GetMouseButtonDown(0))
+        {
+            createObject = null;
+        }
+        //удаление объекта
+        if (Input.GetKey(KeyCode.Delete))
+        {
+            Destroy(createObject);
         }
 
     }
     private void FixedUpdate()
     {
+        //луч от курсора
         rayMouse = Physics2D.Raycast(mouse, Vector3.forward, 10.0f);
         Debug.DrawRay(mouse, Vector3.forward * 10.0f, Color.black);
     }

@@ -92,6 +92,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 4730238873856356392, guid: 86c1ee021cacba94c897b7f532e6df32, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 4730238873856356395, guid: 86c1ee021cacba94c897b7f532e6df32, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.098
@@ -198,6 +202,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpriteStart
       objectReference: {fileID: 0}
+    - target: {fileID: 5168206332187415051, guid: 74ec747df174b3b46a83866a8bc4ad98, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74ec747df174b3b46a83866a8bc4ad98, type: 3}
 --- !u!4 &8231081734828465897 stripped
@@ -215,6 +223,10 @@ PrefabInstance:
     - target: {fileID: 1536167921292891517, guid: db227d6ef29338d418ab9a07120bf49e, type: 3}
       propertyPath: m_Name
       value: PlayerSpawn
+      objectReference: {fileID: 0}
+    - target: {fileID: 1536167921292891517, guid: db227d6ef29338d418ab9a07120bf49e, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 1536167921292891518, guid: db227d6ef29338d418ab9a07120bf49e, type: 3}
       propertyPath: m_LocalPosition.x

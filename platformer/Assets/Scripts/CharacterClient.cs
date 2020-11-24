@@ -111,7 +111,7 @@ public class CharacterClient : MonoBehaviour
   
     void FixedUpdate()
     {
-
+        //Луч для столкновения со стеной
         if (sprite.flipX == true)
         {
             wallRay = Physics2D.Raycast(transform.position, -transform.right, distance, groundLayerMask);

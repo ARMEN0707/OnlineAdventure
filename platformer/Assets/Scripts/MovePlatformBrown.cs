@@ -21,6 +21,7 @@ public class MovePlatformBrown : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        //движение объекта
         if (move)
         {            
             if ((Vector2)transform.position != (Vector2)pathElements[currPath - 1].position)
@@ -48,6 +49,7 @@ public class MovePlatformBrown : MonoBehaviour
 
     }
     
+    //прикрепляет игрока и движется в перед
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("Enter");
@@ -60,6 +62,8 @@ public class MovePlatformBrown : MonoBehaviour
 
         }
     }
+
+    //открепляет игрока и движется назад
     private void OnCollisionExit2D(Collision2D collision)
     {
         Debug.Log("Exit");

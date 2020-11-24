@@ -29,6 +29,7 @@ public class Begin : MonoBehaviour
 
         if (DataScenes.client)
         {
+            //инициализация клиента
             characterServer = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
             characterClient = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
             server.SetActive(false);
@@ -36,12 +37,14 @@ public class Begin : MonoBehaviour
         }
         else
         {
+            //игициализация сервера
             characterServer = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
             characterClient = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
             client.SetActive(false);
             DataScenes.numberSkinCharacter = 0;
 
         }
+        //настройка игроков
         DataScenes.characterClient = characterClient;
         characterServer.tag = "Player";
         characterClient.tag = "PlayerClient";        
@@ -55,6 +58,7 @@ public class Begin : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        //Анимация старта
         if ((collision.gameObject.tag == "Player" || collision.gameObject.tag == "PlayerClient") && start==false)
         {
             anim = GetComponentInChildren<Animator>();

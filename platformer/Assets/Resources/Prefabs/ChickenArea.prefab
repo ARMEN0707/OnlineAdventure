@@ -181,6 +181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distance: {fileID: 6729067149850241991}
   speed: 3
+  startPoint: {x: 0, y: 0, z: 0}
 --- !u!114 &6729067150437346261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,6 +194,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f39c5258789885c4c92e02200a4cf8b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rbEnemies: {fileID: 0}
+  colliderEnemies: {fileID: 0}
 --- !u!61 &6729067150437346266
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -252,7 +255,7 @@ GameObject:
   - component: {fileID: 2632498449194560718}
   m_Layer: 12
   m_Name: ChickenArea
-  m_TagString: Chiken
+  m_TagString: Chicken
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

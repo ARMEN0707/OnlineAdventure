@@ -20,6 +20,7 @@ public class StartEditor : MonoBehaviour
         character.SetActive(false);
     }
 
+
     private void ActivateBird()
     {
         Bird[] birdScripts = FindObjectsOfType<Bird>();
@@ -27,6 +28,16 @@ public class StartEditor : MonoBehaviour
         {
             item.enabled = !item.enabled;
             item.transform.position = item.startPoint;
+        }
+    }
+
+    private void ActivateKillEnemies()
+    {
+        KillEnemies[] killEnemiesScript = FindObjectsOfType<KillEnemies>();
+        foreach(KillEnemies item in killEnemiesScript)
+        {
+            item.colliderEnemies.isTrigger = false;
+            item.rbEnemies.bodyType = RigidbodyType2D.Kinematic;
         }
     }
 
@@ -40,7 +51,7 @@ public class StartEditor : MonoBehaviour
         }
     }
 
-
+    //запуск или остановка воспроизведения карты
     public void PressButton()
     {
         if(!start)
@@ -55,7 +66,6 @@ public class StartEditor : MonoBehaviour
                 moveCameraScript.enabled = false;
                 playerCameraScript.enabled = true;
             }
-
         }
         else
         {
@@ -68,5 +78,6 @@ public class StartEditor : MonoBehaviour
         }
         ActivateBird();
         ActivateChicken();
+        ActivateKillEnemies();
     }
 }

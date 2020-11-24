@@ -24,6 +24,7 @@ public class Chicken : MonoBehaviour
     
     void FixedUpdate()
     {
+        //движение объекта
         ray = Physics2D.Raycast(new Vector2(transform.position.x,transform.position.y-0.05f), transform.right, Vector2.Distance(transform.position, distance.position),playerMask);
         Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - 0.05f), transform.right * Vector2.Distance(transform.position, distance.position), Color.red);
         if(ray.collider!=null)

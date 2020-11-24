@@ -20,6 +20,7 @@ public class MovePlatform : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        //движение объекта
         if((Vector2)transform.position!=(Vector2)pathElements[currPath-1].position)
         {
             Vector2 tempVector = Vector2.MoveTowards(transform.position, pathElements[currPath - 1].position, Time.fixedDeltaTime * speed);
@@ -44,6 +45,7 @@ public class MovePlatform : MonoBehaviour
         }        
     }
 
+    //прикрепление объекта 
     void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.tag == "Player" || col.gameObject.tag == "PlayerClient")
@@ -52,6 +54,7 @@ public class MovePlatform : MonoBehaviour
         }
     }
 
+    //открепление объекта
     void OnCollisionExit2D(Collision2D col)
     {
         if (col.gameObject.tag == "Player" || col.gameObject.tag == "PlayerClient")
