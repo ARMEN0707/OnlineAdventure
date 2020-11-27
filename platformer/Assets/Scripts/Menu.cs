@@ -9,6 +9,8 @@ public class Menu : MonoBehaviour
     public GameObject SelectMenu;
     public GameObject SettingMenu;
     public GameObject InputIPAddressMenu;
+    public GameObject SelecteTypeMap;
+    public GameObject SelecteLoadMap;
 
     public InputField IPAddress;
 
@@ -16,6 +18,23 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene(1);
         DataScenes.client = false;
+    }
+    public void OpenEditorMap()
+    {
+        DataScenes.isEditor = true;
+        SceneManager.LoadScene(3);
+    }
+    public void OpenSelecteTypeMap()
+    {
+        SelectMenu.SetActive(false);
+        SelecteTypeMap.SetActive(true);
+    }
+    public void OpenListCustomMap(GameObject scrollView)
+    {
+        SelecteTypeMap.SetActive(false);
+        SelecteLoadMap.SetActive(true);
+        SaveLoadMap script = scrollView.GetComponent<SaveLoadMap>();
+        script.GetExistingMap(scrollView);
     }
     public void ConnectGame()
     {
@@ -48,6 +67,7 @@ public class Menu : MonoBehaviour
     {
         gameObject.SetActive(true);
         SelectMenu.SetActive(false);
+        SelecteTypeMap.SetActive(false);
     }
     public void BackSelectGame()
     {

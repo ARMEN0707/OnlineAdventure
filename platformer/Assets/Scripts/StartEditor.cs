@@ -13,6 +13,14 @@ public class StartEditor : MonoBehaviour
 
     private Text textButton;
     private bool start = false;
+    public bool IsStart
+    {
+        get
+        {
+            return start;
+        }
+    }
+
 
     private void Start()
     {
@@ -20,8 +28,13 @@ public class StartEditor : MonoBehaviour
         character.SetActive(false);
     }
 
+    public  void ActivateAll()
+    {
+        ActivateBird();
+        ActivateChicken();
+    }
 
-    private void ActivateBird()
+    private  void ActivateBird()
     {
         Bird[] birdScripts = FindObjectsOfType<Bird>();
         foreach (Bird item in birdScripts)
@@ -31,7 +44,7 @@ public class StartEditor : MonoBehaviour
         }
     }
 
-    private void ActivateKillEnemies()
+    private  void ActivateKillEnemies()
     {
         KillEnemies[] killEnemiesScript = FindObjectsOfType<KillEnemies>();
         foreach(KillEnemies item in killEnemiesScript)
@@ -41,7 +54,7 @@ public class StartEditor : MonoBehaviour
         }
     }
 
-    private void ActivateChicken()
+    private  void ActivateChicken()
     {
         Chicken[] chickenScripts = FindObjectsOfType<Chicken>();
         foreach (Chicken item in chickenScripts)
@@ -76,8 +89,7 @@ public class StartEditor : MonoBehaviour
             moveCameraScript.enabled = true;
             playerCameraScript.enabled = false;
         }
-        ActivateBird();
-        ActivateChicken();
         ActivateKillEnemies();
+        ActivateAll();
     }
 }

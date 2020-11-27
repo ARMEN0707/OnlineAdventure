@@ -12,6 +12,8 @@ public static class DataScenes
     public static int priceWin = 100;
     public static int place = 0;
     public static GameObject characterClient;
+    public static bool isEditor = false;
+    public static string nameMap = "pidor";
 
     public static string IPAddress;
 

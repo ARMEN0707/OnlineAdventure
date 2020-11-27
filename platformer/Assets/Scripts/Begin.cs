@@ -20,7 +20,7 @@ public class Begin : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         start = false;
         DataScenes.collectedFruits = 0;
@@ -45,6 +45,8 @@ public class Begin : MonoBehaviour
 
         }
         //настройка игроков
+        characterServer.name = characterServer.name.Replace("(Clone)", "");
+        characterClient.name = characterClient.name.Replace("(Clone)", "");
         DataScenes.characterClient = characterClient;
         characterServer.tag = "Player";
         characterClient.tag = "PlayerClient";        

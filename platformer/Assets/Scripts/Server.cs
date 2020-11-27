@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,32 @@ public class Server : MonoBehaviour
 
     public  Character characterServer;
     public CharacterClient characterClient;
+
+    //Загрузка и активация карты
+    private void Awake()
+    {
+        if (DataScenes.nameMap != default)
+        {
+            SaveLoadMap loadScript = gameObject.GetComponent<SaveLoadMap>();
+            loadScript.LoadFromFile(DataScenes.nameMap);
+            StartEditor activateScripts = gameObject.GetComponent<StartEditor>();
+            activateScripts.ActivateAll();
+            GameObject.Find("Start").GetComponent<Begin>().enabled = true;
+            GameObject.Find("Finish").GetComponent<Finish>().enabled = true;
+        }
+    }
+
+    private void SendMap(string nameMap,EndPoint endPoint)
+    {
+        FileStream fileStream = new FileStream("Map/" + nameMap + ".json", FileMode.Open, FileAccess.Read);
+        StreamReader streamReader = new StreamReader(fileStream);
+        List<byte> map = new List<byte>();
+        while(!streamReader.EndOfStream)
+        {
+            map.AddRange(Encoding.ASCII.GetBytes(streamReader.ReadLine()));
+        }
+        sListener.SendTo(map.ToArray(),endPoint);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -49,6 +76,7 @@ public class Server : MonoBehaviour
     {
         try
         {
+           
             //Отключение 
             if(disconnectServer)
             {
@@ -59,9 +87,12 @@ public class Server : MonoBehaviour
             }
             if (sListener.Available > 0)
             {
+                //Получение IP клиена
                 int size;
                 IPEndPoint IPEndPointClient = new IPEndPoint(IPAddress.Any, 11000);
                 EndPoint EndPointClient = (EndPoint)IPEndPointClient;
+
+                SendMap(DataScenes.nameMap, EndPointClient);////////////////////////////
 
                 //Получение
                 int sizeInBytes = Marshal.SizeOf(characterClient.chrctrInfomation);
@@ -69,6 +100,7 @@ public class Server : MonoBehaviour
                 byte[] buffer = new byte[sizeInBytes];
 
                 size = sListener.ReceiveFrom(buffer, ref EndPointClient);
+                //Если отправлен 1 байт то попыткаа подключение или отключения клиента
                 if(size==1)
                 {
                     bool tempBool = Convert.ToBoolean(buffer[0]);

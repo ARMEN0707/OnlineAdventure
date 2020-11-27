@@ -49,6 +49,7 @@ public class PauseMenu : MonoBehaviour
             Server.disconnectServer = true;
         }
         Time.timeScale = 1;
+        DataScenes.nameMap = default;
         SceneManager.LoadScene(0);
     }
 }
