@@ -83,7 +83,7 @@ public class Client : MonoBehaviour
                 {
                     byte[] map = new byte[sender.Available];
                     sender.Receive(map);
-                    FileStream fs = new FileStream("temp.json",FileMode.Create,FileAccess.Write);
+                    FileStream fs = new FileStream("Map/temp.json",FileMode.Create,FileAccess.Write);
                     fs.Write(map,0,map.Length);
                     fs.Flush();
                     fs.Close();

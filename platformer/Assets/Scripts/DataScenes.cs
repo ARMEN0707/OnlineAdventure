@@ -13,7 +13,7 @@ public static class DataScenes
     public static int place = 0;
     public static GameObject characterClient;
     public static bool isEditor = false;
-    public static string nameMap = "pidor";
+    public static string nameMap = default;
 
     public static string IPAddress;
 

@@ -9,7 +9,9 @@ public class Menu : MonoBehaviour
     public GameObject SelectMenu;
     public GameObject SettingMenu;
     public GameObject InputIPAddressMenu;
+    public GameObject InputIPAddressMenuCustomMap;
     public GameObject SelecteTypeMap;
+    public GameObject SelecteClientTypeMap;
     public GameObject SelecteLoadMap;
 
     public InputField IPAddress;
@@ -29,6 +31,11 @@ public class Menu : MonoBehaviour
         SelectMenu.SetActive(false);
         SelecteTypeMap.SetActive(true);
     }
+    public void OpenSelecteClientTypeMap()
+    {
+        SelectMenu.SetActive(false);
+        SelecteClientTypeMap.SetActive(true);
+    }
     public void OpenListCustomMap(GameObject scrollView)
     {
         SelecteTypeMap.SetActive(false);
@@ -36,17 +43,31 @@ public class Menu : MonoBehaviour
         SaveLoadMap script = scrollView.GetComponent<SaveLoadMap>();
         script.GetExistingMap(scrollView);
     }
-    public void ConnectGame()
+    public void ConnectGame(bool custom)
     {
-        DataScenes.client = true;
-        InputIPAddressMenu.SetActive(true);
+        DataScenes.client = true; 
+        if(custom)
+        {
+            InputIPAddressMenuCustomMap.SetActive(true);
+        }else
+        {
+            InputIPAddressMenu.SetActive(true);
+        }    
+        SelecteClientTypeMap.SetActive(false);
         SelectMenu.SetActive(false);
     }
-    public void GetIPAddress()
+    public void GetIPAddress(bool custom)
     {
         DataScenes.IPAddress = IPAddress.text;
         Debug.Log(DataScenes.IPAddress);
-        SceneManager.LoadScene(1);
+        if(custom)
+        {
+            SceneManager.LoadScene(4);
+        }else
+        {
+            SceneManager.LoadScene(1);
+        }
+
     }
     public void SelectGame()
     {        
@@ -68,6 +89,7 @@ public class Menu : MonoBehaviour
         gameObject.SetActive(true);
         SelectMenu.SetActive(false);
         SelecteTypeMap.SetActive(false);
+        SelecteClientTypeMap.SetActive(false);
     }
     public void BackSelectGame()
     {
