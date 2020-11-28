@@ -64,8 +64,8 @@ public class Client : MonoBehaviour
                 byte[] msgConnect = new byte[1];
                 msgConnect[0] = Convert.ToByte(true);
                 sender.Send(msgConnect);
-
-                sender.Receive(msgConnect,0,1,SocketFlags.None);         
+      
+                sender.Receive(msgConnect);
                 if(Convert.ToBoolean(msgConnect[0]))
                 {
                     connect = true;
@@ -81,12 +81,12 @@ public class Client : MonoBehaviour
 
                 if(sender.Available>0)
                 {
-                    Debug.Log("Receive");
                     byte[] map = new byte[sender.Available];
                     sender.Receive(map);
                     FileStream fs = new FileStream("temp.json",FileMode.Create,FileAccess.Write);
-                    fs.Write(map,0,sender.Available);
-                    Debug.Log("ReceiveMap");
+                    fs.Write(map,0,map.Length);
+                    fs.Flush();
+                    fs.Close();
                 }
                 return;
             }
