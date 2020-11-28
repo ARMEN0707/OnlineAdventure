@@ -39,13 +39,14 @@ public class Server : MonoBehaviour
     private void SendMap(string nameMap,EndPoint endPoint)
     {
         FileStream fileStream = new FileStream("Map/" + nameMap + ".json", FileMode.Open, FileAccess.Read);
-        StreamReader streamReader = new StreamReader(fileStream);
-        List<byte> map = new List<byte>();
-        while(!streamReader.EndOfStream)
+        if(fileStream.Length<8192)
         {
-            map.AddRange(Encoding.ASCII.GetBytes(streamReader.ReadLine()));
+            byte[] map  = new byte[fileStream.Length];
+            fileStream.Read(map,0,map.Length);
+            Debug.Log(map.Length);
+            sListener.SendTo(map,endPoint);
         }
-        sListener.SendTo(map.ToArray(),endPoint);
+
     }
 
     // Start is called before the first frame update
@@ -92,8 +93,6 @@ public class Server : MonoBehaviour
                 IPEndPoint IPEndPointClient = new IPEndPoint(IPAddress.Any, 11000);
                 EndPoint EndPointClient = (EndPoint)IPEndPointClient;
 
-                SendMap(DataScenes.nameMap, EndPointClient);////////////////////////////
-
                 //Получение
                 int sizeInBytes = Marshal.SizeOf(characterClient.chrctrInfomation);
                 IntPtr ptr = Marshal.AllocHGlobal(sizeInBytes);
@@ -114,6 +113,10 @@ public class Server : MonoBehaviour
                         msgConnect[0] = Convert.ToByte(true);
                         sListener.SendTo(msgConnect,EndPointClient);
 
+                        if(DataScenes.nameMap != default)
+                        {                            
+                            SendMap(DataScenes.nameMap,EndPointClient);
+                        }
                     }
                     else
                     {
