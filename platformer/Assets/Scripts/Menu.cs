@@ -15,6 +15,7 @@ public class Menu : MonoBehaviour
     public GameObject SelecteLoadMap;
 
     public InputField IPAddress;
+    public InputField IPAddressCustomMap;
 
     public void CreateGame()
     {
@@ -57,17 +58,17 @@ public class Menu : MonoBehaviour
         SelectMenu.SetActive(false);
     }
     public void GetIPAddress(bool custom)
-    {
-        DataScenes.IPAddress = IPAddress.text;
-        Debug.Log(DataScenes.IPAddress);
+    {        
         if(custom)
         {
+            DataScenes.IPAddress = IPAddressCustomMap.text;
             SceneManager.LoadScene(4);
         }else
         {
+            DataScenes.IPAddress = IPAddress.text;
             SceneManager.LoadScene(1);
         }
-
+        Debug.Log(DataScenes.IPAddress);
     }
     public void SelectGame()
     {        

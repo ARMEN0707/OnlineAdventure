@@ -22,34 +22,98 @@ public class Client : MonoBehaviour
 
     public CharacterClient characterClient;
     public Character characterServer;
+
+    private void Awake() 
+    {
+        if(DataScenes.client)
+        {
+            try
+            {
+                ipAddr = IPAddress.Parse(DataScenes.IPAddress);
+                ipEndPoint = new IPEndPoint(ipAddr, 11000);        
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+                Destroy(gameObject.GetComponent<Client>());
+            }
+            try
+            {
+                sender = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                sender.ReceiveTimeout = 100;
+                sender.Connect(ipEndPoint);
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e.ToString());
+                sender.Close();
+                Destroy(gameObject.GetComponent<Client>());
+            }
+
+            try
+            {
+                //подключение 
+                if (!connect)
+                {                
+                    byte[] msgConnect = new byte[1];
+                    msgConnect[0] = Convert.ToByte(true);
+                    sender.Send(msgConnect);
+        
+                    sender.Receive(msgConnect);
+
+                    Thread.Sleep(1000);
+
+                    if(Convert.ToBoolean(msgConnect[0]))
+                    {
+                        connect = true;                        
+                    }
+                    else
+                    {
+                        connect = false;
+                    }
+                    disconnect = false;
+
+
+
+                    if(sender.Available>0)
+                    {
+                        byte[] map = new byte[sender.Available];
+                        sender.Receive(map);
+                        FileStream fs = new FileStream("Map/temp.json",FileMode.Create,FileAccess.Write);
+                        fs.Write(map,0,map.Length);
+                        fs.Flush();
+                        fs.Close();
+
+                        SaveLoadMap loadScript = gameObject.GetComponent<SaveLoadMap>();
+                        loadScript.LoadFromFile("temp");
+                        StartEditor activateScripts = gameObject.GetComponent<StartEditor>();
+                        activateScripts.ActivateAll();
+                        GameObject.Find("Start").GetComponent<Begin>().enabled = true;
+                        GameObject.Find("Finish").GetComponent<Finish>().enabled = true;
+                    }
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+                sender.Close();
+                disconnect = false;
+                connect = false;
+                Destroy(gameObject.GetComponent<Client>());
+            }
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         characterServer = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
-        characterClient = DataScenes.characterClient.GetComponent<CharacterClient>();
-        try
+        characterClient = DataScenes.characterClient.GetComponent<CharacterClient>();     
+        if(connect)
         {
-            ipAddr = IPAddress.Parse(DataScenes.IPAddress);
-            ipEndPoint = new IPEndPoint(ipAddr, 11000);        
+            characterClient.gameObject.SetActive(true);
         }
-        catch (Exception e)
-        {
-            Debug.Log(e.ToString());
-            Destroy(gameObject.GetComponent<Client>());
-        }
-        try
-        {
-            sender = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            sender.ReceiveTimeout = 100;
-            sender.Connect(ipEndPoint);
-        }
-        catch(Exception e)
-        {
-            Debug.Log(e.ToString());
-            sender.Close();
-            Destroy(gameObject.GetComponent<Client>());
-        }
-
     }
 
     // Update is called once per frame
@@ -58,38 +122,7 @@ public class Client : MonoBehaviour
         try
         {
             int size;
-            //подключение 
-            if (!connect)
-            {                
-                byte[] msgConnect = new byte[1];
-                msgConnect[0] = Convert.ToByte(true);
-                sender.Send(msgConnect);
-      
-                sender.Receive(msgConnect);
-                if(Convert.ToBoolean(msgConnect[0]))
-                {
-                    connect = true;
-                    characterClient.gameObject.SetActive(true);
-                }
-                else
-                {
-                    connect = false;
-                }
-                disconnect = false;
-
-                Thread.Sleep(1000);
-
-                if(sender.Available>0)
-                {
-                    byte[] map = new byte[sender.Available];
-                    sender.Receive(map);
-                    FileStream fs = new FileStream("Map/temp.json",FileMode.Create,FileAccess.Write);
-                    fs.Write(map,0,map.Length);
-                    fs.Flush();
-                    fs.Close();
-                }
-                return;
-            }
+           
             // отключение 
             if (disconnect)
             {
