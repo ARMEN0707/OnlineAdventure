@@ -8,7 +8,7 @@ public class KillEnemies : MonoBehaviour
     public Rigidbody2D rbEnemies;
     public BoxCollider2D colliderEnemies;
 
-    void Start()
+    void Awake()
     {
         anim = GetComponentInChildren<Animator>();
         colliderEnemies = GetComponent<BoxCollider2D>();

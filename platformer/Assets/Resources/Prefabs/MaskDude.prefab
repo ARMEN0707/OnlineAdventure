@@ -57,6 +57,7 @@ MonoBehaviour:
   charAnimator: {fileID: 0}
   characterCollider: {fileID: 0}
   onGround: 0
+  soundJump: {fileID: 0}
 --- !u!114 &4202827908782150519
 MonoBehaviour:
   m_ObjectHideFlags: 0

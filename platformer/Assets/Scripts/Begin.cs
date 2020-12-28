@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class Begin : MonoBehaviour
 {
 
     private Animator anim;
-    //private ParticleSystem particle;
     private bool start;
     private GameObject characterServer;
     private GameObject characterClient;
@@ -22,40 +19,48 @@ public class Begin : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        start = false;
-        DataScenes.collectedFruits = 0;
-        client = GameObject.Find("Client");
-        server = GameObject.Find("Server");
-
-        if (DataScenes.client)
+        if (!DataScenes.isEditor)
         {
-            //инициализация клиента
-            characterServer = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
-            characterClient = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
-            server.SetActive(false);
-            DataScenes.numberSkinCharacter = 1;
-        }
-        else
-        {
-            //игициализация сервера
-            characterServer = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
-            characterClient = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
-            client.SetActive(false);
-            DataScenes.numberSkinCharacter = 0;
+            start = false;
+            DataScenes.collectedFruits = 0;
+            client = GameObject.Find("Client");
+            server = GameObject.Find("Server");
 
-        }
-        //настройка игроков
-        characterServer.name = characterServer.name.Replace("(Clone)", "");
-        characterClient.name = characterClient.name.Replace("(Clone)", "");
-        DataScenes.characterClient = characterClient;
-        characterServer.tag = "Player";
-        characterClient.tag = "PlayerClient";        
-        characterClient.SetActive(false);
-        characterServer.GetComponent<Character>().enabled = true;
-        characterClient.GetComponent<CharacterClient>().enabled = true;
-        Destroy(characterServer.GetComponent<CharacterClient>());
-        Destroy(characterClient.GetComponent<Character>());
+            if (DataScenes.client)
+            {
+                //инициализация клиента
+                characterServer = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
+                characterClient = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
+                server.SetActive(false);
+                DataScenes.numberSkinCharacter = 1;
+            }
+            else
+            {
+                //игициализация сервера
+                characterServer = Instantiate(players[0], playerSpawn.position, Quaternion.identity);
+                characterClient = Instantiate(players[1], playerSpawn.position, Quaternion.identity);
+                client.SetActive(false);
+                DataScenes.numberSkinCharacter = 0;
 
+            }
+            //настройка игроков
+            characterServer.name = characterServer.name.Replace("(Clone)", "");
+            characterClient.name = characterClient.name.Replace("(Clone)", "");
+            DataScenes.characterClient = characterClient;
+            characterServer.tag = "Player";
+            characterClient.tag = "PlayerClient";
+            characterClient.SetActive(false);
+            characterServer.GetComponent<Character>().enabled = true;
+            characterClient.GetComponent<CharacterClient>().enabled = true;
+            Destroy(characterServer.GetComponent<CharacterClient>());
+            Destroy(characterClient.GetComponent<Character>());
+        }
+
+    }
+
+    private void Start()
+    {
+        
     }
 
     void OnCollisionEnter2D(Collision2D collision)

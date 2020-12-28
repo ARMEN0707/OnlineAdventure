@@ -7,6 +7,8 @@ public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenu;
     public GameObject pauseButton;
+    public GameObject settingMenu;
+    public GameObject blackBackground;
 
     public static bool gamePause=false;
 
@@ -30,13 +32,26 @@ public class PauseMenu : MonoBehaviour
     {
         pauseButton.SetActive(false);
         pauseMenu.SetActive(true);
+        blackBackground.SetActive(true);
         gamePause = true;
     }
     public void Resume()
     {
         pauseButton.SetActive(true);
         pauseMenu.SetActive(false);
+        settingMenu.SetActive(false);
+        blackBackground.SetActive(false);
         gamePause = false;
+    }
+    public void Setting()
+    {
+        settingMenu.SetActive(true);
+        pauseMenu.SetActive(false);
+    }
+    public void CloseSetting()
+    {
+        settingMenu.SetActive(false);
+        pauseMenu.SetActive(true);
     }
     public void Exit()
     {

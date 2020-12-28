@@ -14,6 +14,8 @@ public static class DataScenes
     public static GameObject characterClient;
     public static bool isEditor = false;
     public static string nameMap = default;
+    public static float volumeMusic = 1.0f;
+    public static float volumeSound = 1.0f;
 
     public static string IPAddress;
 

@@ -6,7 +6,7 @@ public class MovePlatform : MonoBehaviour
 {
     public float speed;
 
-    public Transform[] pathElements=null;
+    public GameObject[] pathElements=null;
     private int currPath=1,size;
 
     bool right=true;
@@ -21,9 +21,9 @@ public class MovePlatform : MonoBehaviour
     void FixedUpdate()
     {
         //движение объекта
-        if((Vector2)transform.position!=(Vector2)pathElements[currPath-1].position)
+        if((Vector2)transform.position!=(Vector2)pathElements[currPath-1].transform.position)
         {
-            Vector2 tempVector = Vector2.MoveTowards(transform.position, pathElements[currPath - 1].position, Time.fixedDeltaTime * speed);
+            Vector2 tempVector = Vector2.MoveTowards(transform.position, pathElements[currPath - 1].transform.position, Time.fixedDeltaTime * speed);
             transform.position = new Vector3(tempVector.x, tempVector.y,transform.position.z);
         }
         else if(right)

@@ -22,6 +22,10 @@ public class PlayerCamera : MonoBehaviour
     {
         character = GameObject.FindGameObjectWithTag("Player");
         playerTransform = character.GetComponent<Transform>();
+        transform.position = new Vector3(
+            playerTransform.position.x,
+            playerTransform.position.y,
+            transform.position.z);
         distanceX = Vector3.Distance(Camera.main.ViewportToWorldPoint(new Vector2(1.0f, 0.5f)), transform.position);
         distanceY = Vector3.Distance(Camera.main.ViewportToWorldPoint(new Vector2(0.5f, 0)), transform.position);
     }

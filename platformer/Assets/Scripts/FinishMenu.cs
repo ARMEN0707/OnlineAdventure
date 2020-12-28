@@ -27,7 +27,7 @@ public class FinishMenu : MonoBehaviour
 
     public void GoMainMenu()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("Menu");
     }
     public void ActiveAll()
     {

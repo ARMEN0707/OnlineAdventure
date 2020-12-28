@@ -54,43 +54,42 @@ public class Client : MonoBehaviour
             {
                 //подключение 
                 if (!connect)
-                {                
+                {
+                    byte[] map = new byte[8192];
                     byte[] msgConnect = new byte[1];
                     msgConnect[0] = Convert.ToByte(true);
                     sender.Send(msgConnect);
-        
-                    sender.Receive(msgConnect);
 
-                    Thread.Sleep(1000);
+                    FileStream fs = new FileStream("Map/temp.json", FileMode.Create, FileAccess.Write);
+                    int size = sender.Receive(map);
+                    while (size != 1)
+                    {                    
+                        fs.Write(map, 0, size);
+                        fs.Flush();
+                        size = sender.Receive(map);
+                    }
+                    fs.Close();
 
-                    if(Convert.ToBoolean(msgConnect[0]))
+                    SaveLoadMap loadScript = gameObject.GetComponent<SaveLoadMap>();
+                    loadScript.LoadFromFile("temp");
+                    StartEditor activateScripts = gameObject.GetComponent<StartEditor>();
+                    activateScripts.ActivateAll();
+                    activateScripts.CreateBordersForCamera();
+                    GameObject.Find("Start").GetComponent<Begin>().enabled = true;
+                    GameObject.Find("Finish").GetComponent<Finish>().enabled = true;
+
+                    msgConnect[0] = map[0];
+
+                    if (Convert.ToBoolean(msgConnect[0]))
                     {
-                        connect = true;                        
+                        connect = true;
                     }
                     else
                     {
                         connect = false;
                     }
                     disconnect = false;
-
-
-
-                    if(sender.Available>0)
-                    {
-                        byte[] map = new byte[sender.Available];
-                        sender.Receive(map);
-                        FileStream fs = new FileStream("Map/temp.json",FileMode.Create,FileAccess.Write);
-                        fs.Write(map,0,map.Length);
-                        fs.Flush();
-                        fs.Close();
-
-                        SaveLoadMap loadScript = gameObject.GetComponent<SaveLoadMap>();
-                        loadScript.LoadFromFile("temp");
-                        StartEditor activateScripts = gameObject.GetComponent<StartEditor>();
-                        activateScripts.ActivateAll();
-                        GameObject.Find("Start").GetComponent<Begin>().enabled = true;
-                        GameObject.Find("Finish").GetComponent<Finish>().enabled = true;
-                    }
+                  
                     return;
                 }
             }

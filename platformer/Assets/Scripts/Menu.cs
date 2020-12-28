@@ -8,66 +8,38 @@ public class Menu : MonoBehaviour
 {
     public GameObject SelectMenu;
     public GameObject SettingMenu;
-    public GameObject InputIPAddressMenu;
     public GameObject InputIPAddressMenuCustomMap;
-    public GameObject SelecteTypeMap;
-    public GameObject SelecteClientTypeMap;
     public GameObject SelecteLoadMap;
 
-    public InputField IPAddress;
     public InputField IPAddressCustomMap;
 
     public void CreateGame()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("CustomMap");
         DataScenes.client = false;
     }
     public void OpenEditorMap()
     {
         DataScenes.isEditor = true;
-        SceneManager.LoadScene(3);
-    }
-    public void OpenSelecteTypeMap()
-    {
-        SelectMenu.SetActive(false);
-        SelecteTypeMap.SetActive(true);
-    }
-    public void OpenSelecteClientTypeMap()
-    {
-        SelectMenu.SetActive(false);
-        SelecteClientTypeMap.SetActive(true);
+        SceneManager.LoadScene("Editor");
     }
     public void OpenListCustomMap(GameObject scrollView)
     {
-        SelecteTypeMap.SetActive(false);
+        SelectMenu.SetActive(false);
         SelecteLoadMap.SetActive(true);
         SaveLoadMap script = scrollView.GetComponent<SaveLoadMap>();
         script.GetExistingMap(scrollView);
     }
-    public void ConnectGame(bool custom)
+    public void ConnectGame()
     {
         DataScenes.client = true; 
-        if(custom)
-        {
-            InputIPAddressMenuCustomMap.SetActive(true);
-        }else
-        {
-            InputIPAddressMenu.SetActive(true);
-        }    
-        SelecteClientTypeMap.SetActive(false);
+        InputIPAddressMenuCustomMap.SetActive(true);  
         SelectMenu.SetActive(false);
     }
-    public void GetIPAddress(bool custom)
+    public void GetIPAddress()
     {        
-        if(custom)
-        {
-            DataScenes.IPAddress = IPAddressCustomMap.text;
-            SceneManager.LoadScene(4);
-        }else
-        {
-            DataScenes.IPAddress = IPAddress.text;
-            SceneManager.LoadScene(1);
-        }
+        DataScenes.IPAddress = IPAddressCustomMap.text;
+        SceneManager.LoadScene("CustomMap");
         Debug.Log(DataScenes.IPAddress);
     }
     public void SelectGame()
@@ -89,13 +61,12 @@ public class Menu : MonoBehaviour
     {
         gameObject.SetActive(true);
         SelectMenu.SetActive(false);
-        SelecteTypeMap.SetActive(false);
-        SelecteClientTypeMap.SetActive(false);
     }
     public void BackSelectGame()
     {
         SelectMenu.SetActive(true);
-        InputIPAddressMenu.SetActive(false);
+        InputIPAddressMenuCustomMap.SetActive(false);
+        SelecteLoadMap.SetActive(false);
     }
     public void ExitGame()
     {

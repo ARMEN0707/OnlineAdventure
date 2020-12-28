@@ -11,6 +11,8 @@ TagManager:
   - Terrain
   - BlueBird
   - Chicken
+  - Chiken
+  - Chain
   layers:
   - Default
   - TransparentFX
@@ -25,7 +27,7 @@ TagManager:
   - Player
   - Collider
   - Enemies
-  - 
+  - Object
   - 
   - 
   - 

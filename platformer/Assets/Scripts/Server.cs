@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using System.Runtime.InteropServices;
+using UnityEngine.UI;
 
 public class Server : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class Server : MonoBehaviour
     private Socket sListener;
     public static bool connectClient = false;
     public static bool disconnectServer=false;
+
+    public Text ip;
 
     public  Character characterServer;
     public CharacterClient characterClient;
@@ -31,6 +34,7 @@ public class Server : MonoBehaviour
             loadScript.LoadFromFile(DataScenes.nameMap);
             StartEditor activateScripts = gameObject.GetComponent<StartEditor>();
             activateScripts.ActivateAll();
+            activateScripts.CreateBordersForCamera();
             GameObject.Find("Start").GetComponent<Begin>().enabled = true;
             GameObject.Find("Finish").GetComponent<Finish>().enabled = true;
         }
@@ -54,12 +58,14 @@ public class Server : MonoBehaviour
     {
         characterServer = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
         characterClient = characterClient = DataScenes.characterClient.GetComponent<CharacterClient>();
+        ip = GameObject.Find("IP-adress").GetComponent<Text>();
         try
         {
             ipHost = Dns.GetHostEntry("");  //Dns.GetHostName()          
             ipAddr = ipHost.AddressList[1];
             Debug.Log(ipAddr);
             ipEndPoint = new IPEndPoint(ipAddr, 11000);
+            ip.text = ipAddr.ToString();
 
             sListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
@@ -105,21 +111,21 @@ public class Server : MonoBehaviour
                     bool tempBool = Convert.ToBoolean(buffer[0]);
                     if(tempBool)
                     {
-                        connectClient = true;
-                        characterClient.gameObject.SetActive(true);
-                        Debug.Log("CONNECT");
+                        //отправляем карту
+                        SendMap(DataScenes.nameMap, EndPointClient);
 
+                        //подтверждаем подключение
                         byte[] msgConnect = new byte[1];
                         msgConnect[0] = Convert.ToByte(true);
-                        sListener.SendTo(msgConnect,EndPointClient);
+                        sListener.SendTo(msgConnect,EndPointClient);                        
+                        connectClient = true;
 
-                        if(DataScenes.nameMap != default)
-                        {                            
-                            SendMap(DataScenes.nameMap,EndPointClient);
-                        }
+                        characterClient.gameObject.SetActive(true);
+                        Debug.Log("CONNECT");
                     }
                     else
                     {
+                        //отключаем клиента
                         connectClient = false;                           
                         characterClient.gameObject.SetActive(false);
                         Debug.Log("DISCONNECT");

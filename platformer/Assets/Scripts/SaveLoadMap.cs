@@ -8,16 +8,23 @@ using UnityEngine.SceneManagement;
 
 public class SaveLoadMap : MonoBehaviour
 {
-    struct JsonTerrain
+    struct JsonObject
     {
         public string name;
         public Vector3 position;
     }
+    struct JsonArray
+    {
+        public string name;
+        public Vector3[] position;
+    }
 
+    public Text notificationText;
     private StartEditor editor;
     private string nameFile;
     private int groundLayer;
     private int enemiesLayer;
+    private int objectLayer;
 
 
     // Start is called before the first frame update
@@ -30,6 +37,7 @@ public class SaveLoadMap : MonoBehaviour
         }        
         groundLayer = LayerMask.NameToLayer("Ground");
         enemiesLayer = LayerMask.NameToLayer("Enemies");
+        objectLayer = LayerMask.NameToLayer("Object");
     }
 
     //запущена ли карта? останавливает её
@@ -76,7 +84,12 @@ public class SaveLoadMap : MonoBehaviour
     public void SetCanvas(GameObject canvas)
     {
         canvas.SetActive(!canvas.activeInHierarchy);
+        notificationText.text = "";
         GameObject camera = GameObject.Find("Main Camera");
+        if(editor.IsStart)
+        {
+            editor.PressButton();
+        }
         SelectMouseItem selectItem = camera.GetComponent<SelectMouseItem>();
         selectItem.enabled = !selectItem.enabled;
         MoveCamera moveCamera = camera.GetComponent<MoveCamera>();
@@ -125,11 +138,28 @@ public class SaveLoadMap : MonoBehaviour
         }
     }
      
-    private void WriteToFile(StreamWriter sw, GameObject item)
+    private void WriteToFileObject(StreamWriter sw, GameObject item)
     {
-        JsonTerrain temp = new JsonTerrain {
+        JsonObject temp = new JsonObject
+        {
             name = item.name,
             position = item.transform.position
+        };
+        string jsonString = JsonUtility.ToJson(temp);
+        sw.WriteLine(jsonString);
+        sw.Flush();
+    }
+    private void WriteToFileArray(StreamWriter sw, GameObject[] arrayObject,string nameObject)
+    {
+        Vector3[] arrayVector = new Vector3[arrayObject.Length];
+        for(int i =0;i<arrayObject.Length;i++)
+        {
+            arrayVector[i] = arrayObject[i].transform.position;
+        }
+        JsonArray temp = new JsonArray
+        {
+            name = nameObject,
+            position = arrayVector
         };
         string jsonString = JsonUtility.ToJson(temp);
         sw.WriteLine(jsonString);
@@ -149,32 +179,43 @@ public class SaveLoadMap : MonoBehaviour
             GameObject[] finish = GameObject.FindGameObjectsWithTag("Finish");
             GameObject[] respawn = GameObject.FindGameObjectsWithTag("Respawn");
 
-            if(finish.Length != 1)
-            {
-                Debug.Log("Должен быть один финиш");
-                return;
-            }
             if (respawn.Length != 1)
             {
+                notificationText.text = "The map is not saved.\nAdd start";
                 Debug.Log("Должен быть один старт");
                 return;
             }
+            if (finish.Length != 1)
+            {
+                notificationText.text = "The map is not saved.\nAdd finish";
+                Debug.Log("Должен быть один финиш");
+                return;
+            }
+            
 
             GameObject[] gameObjectsInScenes = FindObjectsOfType<GameObject>();
             FileStream fs = new FileStream("Map/" + nameFile + ".json", FileMode.OpenOrCreate,FileAccess.Write);
             StreamWriter sw = new StreamWriter(fs);
             foreach (GameObject item in gameObjectsInScenes)
             {
-                if (item.layer == groundLayer || item.layer == enemiesLayer || item.tag == "Finish" || item.tag == "Respawn")
+                if (item.tag == "movePlatform")
+                {
+                    MovePlatform platformScript = item.GetComponentInChildren<MovePlatform>();
+                    WriteToFileArray(sw, platformScript.pathElements, "Chain");
+                    continue;
+                }
+                if (item.layer == groundLayer || item.layer == enemiesLayer || item.layer == objectLayer || item.tag == "Finish" || item.tag == "Respawn")
                 {
                     if (item.transform.parent == null)
                     {
-                        WriteToFile(sw, item);
+                        WriteToFileObject(sw, item);
                     }
                 }
+
             }
             sw.Close();
             fs.Close();
+            notificationText.text = "Map saved successfully";
             Debug.Log("Карта успешно сохранена");
         }catch(IOException e)
         {
@@ -190,7 +231,7 @@ public class SaveLoadMap : MonoBehaviour
             GameObject[] gameObjectsInScenes = FindObjectsOfType<GameObject>();
             foreach (GameObject item in gameObjectsInScenes)
             {
-                if (item.layer == groundLayer || item.layer == enemiesLayer)
+                if (item.layer == groundLayer || item.layer == enemiesLayer || item.layer== objectLayer)
                 {
                     Destroy(item);
                 }
@@ -204,18 +245,26 @@ public class SaveLoadMap : MonoBehaviour
             while (!sr.EndOfStream)
             {
                 string jsonString = sr.ReadLine();
-                JsonTerrain tempObject = JsonUtility.FromJson<JsonTerrain>(jsonString);
+                JsonArray tempArray=new JsonArray();
                 GameObject prefab;
-
-                if ((prefab = Resources.Load("Prefabs/" + tempObject.name) as GameObject) != null)
+                JsonObject tempObject = JsonUtility.FromJson<JsonObject>(jsonString);
+                if(tempObject.position==default)
                 {
-                    prefab = Instantiate(prefab, tempObject.position, Quaternion.identity);
+                    tempArray = JsonUtility.FromJson<JsonArray>(jsonString);
+                    prefab = Resources.Load("Prefabs/" + tempObject.name) as GameObject;
                 }
-                else if ((prefab = Resources.Load("Prefabs/PrefabsTerrain/" + tempObject.name) as GameObject) != null)
+                else
                 {
-                    prefab = Instantiate(prefab, tempObject.position, Quaternion.identity);
-                }
-                prefab.name = prefab.name.Replace("(Clone)", "");
+                    if ((prefab = Resources.Load("Prefabs/" + tempObject.name) as GameObject) != null)
+                    {
+                        prefab = Instantiate(prefab, tempObject.position, Quaternion.identity);
+                    }
+                    else if ((prefab = Resources.Load("Prefabs/PrefabsTerrain/" + tempObject.name) as GameObject) != null)
+                    {
+                        prefab = Instantiate(prefab, tempObject.position, Quaternion.identity);
+                    }
+                    prefab.name = prefab.name.Replace("(Clone)", "");
+                }                
                 if (prefab.tag == "BlueBird")
                 {
                     SelectMouseItem.InitObjectBird(prefab);
@@ -223,6 +272,34 @@ public class SaveLoadMap : MonoBehaviour
                 if(prefab.tag == "Chicken")
                 {
                     SelectMouseItem.InitObjectChicken(prefab);
+                }
+                if(prefab.tag == "Chain")
+                {
+                    GameObject platform;
+                    List<GameObject> pointLine = new List<GameObject>();
+                    GameObject emptyObject = SelectMouseItem.CreateMovePlatform(
+                        tempArray.position[0].x,
+                        tempArray.position[0].y,
+                        objectLayer,
+                        out platform);
+                    List<GameObject> pointPlatform = new List<GameObject>();
+                    for (int i = 0;i<tempArray.position.Length-1;i++)
+                    {
+                        pointLine.Clear();
+                        SelectMouseItem.PaintLine(
+                            tempArray.position[i].x,
+                            tempArray.position[i].y,
+                            tempArray.position[i+1].x,
+                            tempArray.position[i+1].y,
+                            0.05f,
+                            emptyObject,
+                            prefab,
+                            pointLine);
+                        pointPlatform.Add(pointLine[0]);                       
+                    }
+                    pointPlatform.Add(pointLine[pointLine.Count - 1]);
+                    MovePlatform platformScript = platform.GetComponent<MovePlatform>();
+                    platformScript.pathElements = pointPlatform.ToArray();
                 }
             }
             fs.Close();

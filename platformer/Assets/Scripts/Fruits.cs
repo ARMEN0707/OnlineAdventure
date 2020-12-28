@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Fruits : MonoBehaviour
 {
+    private AudioSource soundTakeFruit;
+
+    private void Start()
+    {
+        soundTakeFruit = GameObject.Find("TakeFruits").GetComponent<AudioSource>();
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -11,6 +17,7 @@ public class Fruits : MonoBehaviour
         {
             if (collision.gameObject.tag == "Player")
             {
+                soundTakeFruit.Play();
                 DataScenes.collectedFruits++;
             }
             Destroy(gameObject);

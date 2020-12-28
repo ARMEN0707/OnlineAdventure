@@ -9,23 +9,41 @@ public class SelectMouseItem : MonoBehaviour
     private Camera mainCamera;
     private RaycastHit2D rayMouse;
     private Vector2 mouse;
-    private int indexTerrain;
-    private GameObject selectTerrain;
+    private int indexObject;
+    private GameObject selectObject;
     private GameObject createObject;
+    private GameObject emptyObject;
+    private GameObject platform;
 
     private int groundLayer;
-    private int terrainLayer;
+    private int uiLayer;
     private int enemiesLayer;
+    private int objectLayer;
     private bool selectItem;
-    
+    private bool paintLine;
+
+    //Для рисования линии для платформы
+    public float distanceChain;
+    private float lineX;
+    private float lineY;
+    private List<GameObject> pointLine;
+    private List<GameObject> pointPlatform;
+
     // Start is called before the first frame update
     void Start()
     {
         mainCamera = Camera.main;
         groundLayer = LayerMask.NameToLayer("Ground");
-        terrainLayer = LayerMask.NameToLayer("UI");
+        uiLayer = LayerMask.NameToLayer("UI");
         enemiesLayer = LayerMask.NameToLayer("Enemies");
+        objectLayer = LayerMask.NameToLayer("Object");
     }
+
+    public bool checkLayer(int layer) =>
+        layer == groundLayer || layer == enemiesLayer || layer == objectLayer;
+    public GameObject GetChainParent(GameObject chain, int i) => chain.transform.parent.transform.GetChild(i).gameObject;
+
+
 
     public static void InitObjectBird(GameObject createObject)
     {
@@ -54,6 +72,100 @@ public class SelectMouseItem : MonoBehaviour
             chickenScript.transform.position.y,
             chickenScript.transform.position.z
         );
+    }
+    //инициализация необходимых объектов для движущейся платформы
+    public static GameObject CreateMovePlatform(float lineX, float lineY, int objectLayer, out GameObject platform)
+    {
+        GameObject go = new GameObject("MovePlatform");
+        go.transform.position = new Vector3(lineX, lineY, 14);
+        go.layer = objectLayer;
+        go.tag = "movePlatform";
+        GameObject goChild = new GameObject("chain");
+        goChild.transform.position = new Vector3(lineX, lineY, 14);
+        goChild.transform.SetParent(go.transform);
+        platform = Resources.Load("Prefabs/greyPlatform") as GameObject;
+        platform = Instantiate(platform, new Vector3(lineX, lineY, 0), Quaternion.identity);
+        platform.name = platform.name.Replace("(Clone)", "");
+        platform.transform.SetParent(go.transform);
+        platform.transform.localPosition = new Vector3(
+            platform.transform.localPosition.x,
+            platform.transform.localPosition.y,
+            -1);
+        return goChild;
+    }
+    //создание одного звена дороги
+    public static void CreateChain(GameObject emptyObject, GameObject chainItem,float x, float y, List<GameObject> pointLine)
+    {
+        GameObject tempObject = Instantiate(chainItem, new Vector3(x, y, chainItem.transform.position.z), Quaternion.identity);
+        tempObject.name = tempObject.name.Replace("(Clone)", "");
+        tempObject.transform.SetParent(emptyObject.transform);
+        tempObject.transform.localPosition = new Vector3(
+            tempObject.transform.localPosition.x,
+            tempObject.transform.localPosition.y,
+            0);
+        pointLine.Add(tempObject);
+    }
+    //отрисовка линии движения движущейся платформы
+    public static void PaintLine(float lineX, float lineY, float mouseX, float mouseY, float distanceChain, GameObject emptyObject, GameObject chain, List<GameObject> pointLine)
+    {
+        foreach (GameObject item in pointLine)
+        {
+            Destroy(item);
+        }
+        pointLine.Clear();
+        float k = (mouseY - lineY) / (mouseX - lineX);
+        float b = lineY - (k * lineX);
+
+        if (Math.Atan(k) >= -(Math.PI / 4) && Math.Atan(k) <= (Math.PI / 4))
+        {
+            for (float x = lineX; x <= mouseX - distanceChain; x += distanceChain)
+            {
+                float y = (k * x) + b;
+                CreateChain(emptyObject,chain, x, y,pointLine);
+            }
+        }
+        if ( (Math.Atan(k) >= (Math.PI / 4) && Math.Atan(k) <= (Math.PI / 2))
+            || (Math.Atan(k) >= -(Math.PI / 2) && Math.Atan(k) <= -(Math.PI / 4)) )
+        {
+            for (float y = lineY; y <= mouseY - distanceChain; y += distanceChain)
+            {
+                float x;
+                if (k == 0 || float.IsNaN(k) || float.IsInfinity(k))
+                {
+                    x = mouseX;
+                }
+                else
+                {
+                    x = (y - b) / k;
+                }
+                CreateChain(emptyObject, chain, x, y, pointLine);
+            }
+        }
+        if (Math.Atan(k) >= -(Math.PI / 4) && Math.Atan(k) <=  (Math.PI / 4))
+        {
+            for (float x = lineX; x >= mouseX + distanceChain; x -= distanceChain)
+            {
+                float y = (k * x) + b;
+                CreateChain(emptyObject, chain, x, y, pointLine);
+            }
+        }
+        if ( (Math.Atan(k) >= -(Math.PI / 2) && Math.Atan(k) <= -(Math.PI / 4))
+            || (Math.Atan(k) >= (Math.PI / 4) && Math.Atan(k) <= (Math.PI / 2)))
+        {
+            for (float y = lineY; y >= mouseY + distanceChain; y -= distanceChain)
+            {
+                float x;
+                if (k==0 || float.IsNaN(k) || float.IsInfinity(k))
+                {
+                    x = lineX;
+                }else
+                {
+                    x = (y - b) / k;
+                }
+                CreateChain(emptyObject, chain, x, y, pointLine);
+            }
+        }
+        
     }
 
     //рисует обводку, когда объект выбран
@@ -90,36 +202,85 @@ public class SelectMouseItem : MonoBehaviour
     {
         mouse = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
         mouse = mainCamera.ScreenToWorldPoint(mouse);
+        //рисуем линию
+        if(paintLine)
+        {
+            PaintLine(lineX, lineY, mouse.x, mouse.y,distanceChain,emptyObject, selectObject, pointLine);
+            if (Input.GetMouseButtonDown(0))
+            {
+                pointPlatform.Add(pointLine[0]);
+                lineX = mouse.x;
+                lineY = mouse.y;
+                pointLine.Clear();
+            }else if(Input.GetMouseButtonDown(1))
+            {
+                MovePlatform platformScript = platform.GetComponent<MovePlatform>();
+                pointPlatform.Add(pointLine[0]);
+                pointPlatform.Add(pointLine[pointLine.Count-1]);
+                platformScript.pathElements = pointPlatform.ToArray();
+                pointPlatform.Clear();
+                pointLine.Clear();
+                paintLine = false;
+                platform.SetActive(true);
+                platform = null;
+                pointPlatform = null;
+                pointLine = null;
+
+            }
+        }
         //создание объекта
-        if ((rayMouse.collider!=null) && (rayMouse.collider.gameObject.layer == terrainLayer) && Input.GetMouseButtonDown(0))
+        if ((rayMouse.collider!=null) && (rayMouse.collider.gameObject.layer == uiLayer) && Input.GetMouseButtonDown(0))
         {
             if(createObject != null && createObject.GetComponent<LineRenderer>()!=null)
             {
                 Destroy(createObject.GetComponent<LineRenderer>());
             }
-            indexTerrain = Convert.ToInt32(rayMouse.collider.name);
-            selectTerrain = listPrefabs[indexTerrain];
-            createObject =  Instantiate(selectTerrain, new Vector3(mouse.x,mouse.y,selectTerrain.transform.position.z), Quaternion.identity);
+            indexObject = Convert.ToInt32(rayMouse.collider.name);
+            selectObject = listPrefabs[indexObject];
+            createObject =  Instantiate(selectObject, new Vector3(mouse.x,mouse.y,selectObject.transform.position.z), Quaternion.identity);
             createObject.name = createObject.name.Replace("(Clone)", "");
             selectItem = true;
             DrawSelectItem(createObject);
         }
         //выбор созданого объекта
-        else if ((rayMouse.collider != null) && Input.GetMouseButtonDown(0) && 
-        ((rayMouse.collider.gameObject.layer == groundLayer) || (rayMouse.collider.gameObject.layer == enemiesLayer)))        
+        else if ((rayMouse.collider != null) && Input.GetMouseButtonDown(0) 
+                && checkLayer(rayMouse.collider.gameObject.layer))        
         {
             if (createObject != null && createObject.GetComponent<LineRenderer>() != null)
             {
-                Destroy(createObject.GetComponent<LineRenderer>());
+                if (createObject.tag == "Chain")
+                {
+                    //получаем все объекты цепи и удаляем обводку
+                    for (int i = 0; i < createObject.transform.parent.childCount; i++)
+                    {
+                        GameObject chain = GetChainParent(createObject,i);
+                        Destroy(chain.GetComponent<LineRenderer>());
+                    }
+                }
+                else
+                {
+                    Destroy(createObject.GetComponent<LineRenderer>());
+                }
             }
             createObject = rayMouse.collider.gameObject;
-            DrawSelectItem(createObject);
-            selectItem = true;
+            if(createObject.tag == "Chain")
+            {
+                //получаем все объекты цепи и выделем их
+                for(int i = 0;i < createObject.transform.parent.childCount; i++)
+                {
+                    GameObject chain = GetChainParent(createObject, i);
+                    DrawSelectItem(chain);
+                }                
+            }else
+            {
+                DrawSelectItem(createObject);
+                selectItem = true;
+            }            
         }
         //перемещение объекта
         if (Input.GetMouseButton(0) && selectItem)
         {
-            createObject.transform.position = Vector3.MoveTowards(createObject.transform.position, new Vector3(mouse.x, mouse.y, selectTerrain.transform.position.z), 0.5f);
+            createObject.transform.position = Vector3.MoveTowards(createObject.transform.position, new Vector3(mouse.x, mouse.y, selectObject.transform.position.z), 0.5f);
             DrawSelectItem(createObject);
         }
 
@@ -134,22 +295,48 @@ public class SelectMouseItem : MonoBehaviour
             {
                 InitObjectChicken(createObject);
             }
+            if(createObject.tag == "Chain")
+            {                
+                paintLine = true;
+                pointLine = new List<GameObject>();
+                pointPlatform = new List<GameObject>();
+                lineX = mouse.x;
+                lineY = mouse.y;          
+                emptyObject = CreateMovePlatform(lineX,lineY,objectLayer, out platform);
+                platform.SetActive(false);
+                Destroy(createObject);
+            }
             selectItem = false;
         }
-        //Уничтожение обводки
-        if(Input.GetMouseButtonDown(0) && createObject != null && createObject.GetComponent<LineRenderer>() != null)
+        //Уничтожение обводки и забываем про выбранный объект
+        if(Input.GetMouseButtonDown(0) && createObject != null && createObject.GetComponent<LineRenderer>() != null && rayMouse.collider == null)
         {
-            Destroy(createObject.GetComponent<LineRenderer>());
-        }
-        //быбранного объекта нет
-        if(rayMouse.collider == null && Input.GetMouseButtonDown(0))
-        {
+            if (createObject.tag == "Chain")
+            {
+                //удаляем обводку со всех элементов цепи
+                for (int i = 0; i < createObject.transform.parent.childCount; i++)
+                {
+                    GameObject chain = GetChainParent(createObject, i);
+                    Destroy(chain.GetComponent<LineRenderer>());
+                }
+            }
+            else
+            {
+                Destroy(createObject.GetComponent<LineRenderer>());
+            }
             createObject = null;
         }
         //удаление объекта
-        if (Input.GetKey(KeyCode.Delete))
+        if (Input.GetKey(KeyCode.Delete) && createObject != null)
         {
-            Destroy(createObject);
+            if(createObject.tag == "Chain")
+            {
+                //удаляем платформу
+                Destroy(createObject.transform.parent.gameObject.transform.parent.gameObject);
+            }else
+            {
+                Destroy(createObject);
+            }
         }
 
     }

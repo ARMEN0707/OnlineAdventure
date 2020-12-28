@@ -36,6 +36,8 @@ public class Character : MonoBehaviour
     private bool hit = false;
 	public bool onGround = false;
 
+    public AudioSource soundJump;
+
 
     private RaycastHit2D wallRay;
 
@@ -57,6 +59,7 @@ public class Character : MonoBehaviour
         colliderLayerMask = LayerMask.GetMask("Collider");
         groundLayerMask = LayerMask.GetMask("Ground");
         smoke = gameObject.GetComponentInChildren<ParticleSystem>();
+        soundJump = GameObject.Find("SoundJump").GetComponent<AudioSource>();
         smoke.Stop();
 
         isLife = true;
@@ -81,6 +84,7 @@ public class Character : MonoBehaviour
 	void Jump(float x, float y)
 	{
        playerRigidbody.velocity = new Vector2(x,y);
+       soundJump.Play();
 	}	
 	
     void WriteStruct()
@@ -98,7 +102,7 @@ public class Character : MonoBehaviour
     void Update()
     {
         
-        if (wallRay.collider != null && Input.GetButton("Horizontal"))
+        if (wallRay.collider != null && Input.GetButton("Horizontal") && isLife)
         {            
             if (Input.GetButtonDown("Jump"))
             {
@@ -131,7 +135,7 @@ public class Character : MonoBehaviour
         }
                
 
-        if (!onGround && !wallJump && !wallStick && !doubleJump && Input.GetButtonDown("Jump") && !DataScenes.finish)
+        if (!onGround && !wallJump && !wallStick && !doubleJump && Input.GetButtonDown("Jump") && !DataScenes.finish && isLife)
         {
             Jump(0, jumpForce);
             doubleJump = true;
@@ -143,7 +147,7 @@ public class Character : MonoBehaviour
             doubleJump = false;
         }
 
-        if (onGround && !wallJump && !wallStick &&(Input.GetButtonDown("Jump")) && !DataScenes.finish)
+        if (onGround && !wallJump && !wallStick &&(Input.GetButtonDown("Jump")) && !DataScenes.finish && isLife)
         {
             Jump(0, jumpForce);
         }
@@ -173,6 +177,7 @@ public class Character : MonoBehaviour
         {
             characterCollider.isTrigger = true;
             charAnimator.SetTrigger("Hit");
+            //Destroy(gameObject.GetComponent<Character>());
         }
 
         WriteStruct();
@@ -207,7 +212,7 @@ public class Character : MonoBehaviour
 
 
         //бег
-        if (Input.GetButton("Horizontal") && !DataScenes.finish)
+        if (Input.GetButton("Horizontal") && !DataScenes.finish && isLife)
         {
             Move();
             if (onGround  && wallRay.collider == null)
